@@ -3,5 +3,3 @@ node_modules
 .tmp
 npm-debug.log
 \venv
-application/__pycache__/
-__pycache__/
