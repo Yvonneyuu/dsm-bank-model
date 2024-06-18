@@ -33,7 +33,7 @@ X_categoric = df.iloc[:, [1,2,3,4,6,7]].values
 ohe = OneHotEncoder()
 categoric_data = ohe.fit_transform(X_categoric).toarray()
 categoric_df = pd.DataFrame(categoric_data)
-categoric_df.columns = ohe.get_feature_names()
+categoric_df.columns = ohe.get_feature_names_out()
 
 #combine numeric and categorix
 X_final = pd.concat([numeric_df, categoric_df], axis = 1)
@@ -42,17 +42,22 @@ X_final = pd.concat([numeric_df, categoric_df], axis = 1)
 rfc = RandomForestClassifier(n_estimators = 100)
 rfc.fit(X_final, y)
 
+
 #create flask instance
 app = Flask(__name__)
 
 #create api
 @app.route('/api', methods=['GET', 'POST'])
 def predict():
+
+    print('API called')
     #get data from request
     data = request.get_json(force=True)
     data_categoric = np.array([data["job"], data["marital"], data["education"], data["default"], data["housing"], data["loan"]])
     data_categoric = np.reshape(data_categoric, (1, -1))
     data_categoric = ohe.transform(data_categoric).toarray()
+
+    print(data_categoric)
  
     data_age = np.array([data["age"]])
     data_age = np.reshape(data_age, (1, -1))
@@ -67,5 +72,6 @@ def predict():
 
     #make predicon using model
     prediction = rfc.predict(data_final)
+    print('Prediction made', prediction)
     return Response(json.dumps(prediction[0]))
 
